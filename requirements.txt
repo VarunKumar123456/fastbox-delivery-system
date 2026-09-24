@@ -3,3 +3,5 @@
 #
 # Dev/test dependency:
 pytest>=7.0
+Flask
+gunicorn

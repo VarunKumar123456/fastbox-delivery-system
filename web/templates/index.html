@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FastBox Mystery Delivery System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f5f7fa;
+            color: #1f2937;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        button {
+            background: #111827;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        input[type="file"] {
+            margin: 12px 0 18px;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 14px;
+            border-radius: 8px;
+        }
+
+        .success {
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .best-agent {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px;
+        }
+
+        th,
+        td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f9fafb;
+        }
+
+        .metric {
+            font-weight: bold;
+        }
+
+        .footer {
+            color: #6b7280;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 35px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>FastBox Mystery Delivery System</h1>
+
+        <p class="subtitle">
+            Interactive demonstration of the Python delivery simulation,
+            package assignment, route calculation and efficiency reporting.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Run Simulation</h2>
+
+        <p>
+            Run the included FastBox dataset or upload a compatible JSON input file.
+        </p>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <label for="input_file">
+                Optional JSON input:
+            </label>
+
+            <br>
+
+            <input
+                type="file"
+                id="input_file"
+                name="input_file"
+                accept=".json"
+            >
+
+            <br>
+
+            <button type="submit">
+                Run Delivery Simulation
+            </button>
+
+        </form>
+    </div>
+
+    {% if error %}
+        <div class="card">
+            <div class="error">
+                <strong>Simulation error:</strong>
+                {{ error }}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if report %}
+
+        <div class="card">
+
+            <div class="success">
+                Simulation completed successfully.
+            </div>
+
+            <div class="best-agent">
+                Best Agent: {{ report["best_agent"] }}
+            </div>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Agent</th>
+                        <th>Packages Delivered</th>
+                        <th>Total Distance</th>
+                        <th>Efficiency</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for agent, data in report.items() %}
+                        {% if agent != "best_agent" %}
+
+                            <tr>
+
+                                <td class="metric">
+                                    {{ agent }}
+                                </td>
+
+                                <td>
+                                    {{ data["packages_delivered"] }}
+                                </td>
+
+                                <td>
+                                    {{ "%.2f"|format(data["total_distance"]) }}
+                                </td>
+
+                                <td>
+                                    {{ "%.2f"|format(data["efficiency"]) }}
+                                </td>
+
+                            </tr>
+
+                        {% endif %}
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% endif %}
+
+    <div class="footer">
+        FastBox Mystery Delivery System · Python · Flask
+    </div>
+
+</body>
+</html>
