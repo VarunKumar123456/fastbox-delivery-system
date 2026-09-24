@@ -1,6 +1,6 @@
 # FastBox Mystery Delivery System
 
-[![CI](https://github.com/REPLACE_WITH_YOUR_USERNAME/fastbox-delivery-system/actions/workflows/ci.yml/badge.svg)](https://github.com/REPLACE_WITH_YOUR_USERNAME/fastbox-delivery-system/actions/workflows/ci.yml)
+[![CI](https://github.com/VarunKumar123456/fastbox-delivery-system/actions/workflows/ci.yml/badge.svg)](https://github.com/VarunKumar123456/fastbox-delivery-system/actions/workflows/ci.yml)
 ![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)
 ![Type checked: mypy](https://img.shields.io/badge/type--checked-mypy-informational)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
@@ -11,7 +11,7 @@ performance report is produced. Zero runtime dependencies (stdlib only),
 fully type-hinted and mypy-clean, with a 12-test pytest suite and CI
 running on every push.
 
-> **Note:** replace `REPLACE_WITH_YOUR_USERNAME` above with your GitHub
+> **Note:** replace `VarunKumar123456` above with your GitHub
 > username once pushed, so the CI badge points at your repo's own workflow
 > run and shows a live "passing" status.
 
