@@ -5,234 +5,232 @@
 [![Type checked](https://img.shields.io/badge/type--checked-mypy-informational)](https://mypy.readthedocs.io/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A modular Python simulator for one day of FastBox logistics.
+A deterministic Python implementation of the **FastBox Mystery Delivery System**, built as a submission for the Nexgensis Software Engineer Intern assignment.
 
-The system reads delivery data, assigns each package to the nearest eligible agent, simulates the resulting delivery routes, calculates per-agent performance metrics, and produces a deterministic JSON report.
+The system reads warehouses, delivery agents, and packages from JSON, assigns packages to agents using capacity constraints, simulates delivery routes using Euclidean distance, and produces a structured performance report.
 
-The implementation focuses on **correctness, clear separation of responsibilities, deterministic behavior, input validation, testability, and maintainability**.
+It also includes a lightweight Flask web interface for running the simulation through a browser.
+
+---
+
+## Live Demo
+
+**Recruiter-facing web demo:**
+
+https://fastbox-delivery-system-dit7.onrender.com
+
+The live demo allows you to:
+
+* Run the delivery simulation from a browser
+* Upload a custom JSON input file
+* View the best-performing agent
+* View packages delivered by each agent
+* View total route distance
+* View delivery efficiency
+
+The web layer is intentionally lightweight; the core Python simulation remains the source of truth for the assignment logic.
+
+---
+
+## Repository
+
+GitHub:
+
+https://github.com/VarunKumar123456/fastbox-delivery-system
 
 ---
 
 ## Why This Project
 
-The core problem is simple:
+The implementation focuses on the core engineering requirements of the assignment:
 
-> Given warehouses, delivery agents, and packages, determine which agent should handle each package and simulate the resulting deliveries.
+* Correct JSON input handling
+* Package-to-agent assignment with capacity constraints
+* Warehouse and destination routing
+* Euclidean distance calculation
+* Delivery simulation
+* Agent performance metrics
+* Deterministic execution
+* Input validation and clear errors
+* Automated testing
+* Static type checking
+* Continuous integration
+* Docker support
+* Optional bonus functionality
+* Browser-based demonstration
 
-The implementation separates the problem into independent stages:
-
-**Load → Validate → Assign → Simulate → Report**
-
-This makes the system easier to test, reason about, and extend without coupling unrelated parts of the application.
+The implementation is structured into small modules so that the business logic is independent of the CLI and web interfaces.
 
 ---
 
 ## Requirement Checklist
 
-| Requirement                        | Status | Implementation          |
-| ---------------------------------- | :----: | ----------------------- |
-| Read and parse `data.json`         |    ✅   | `src/data_loader.py`    |
-| Assign packages to nearest agent   |    ✅   | `src/assignment.py`     |
-| Use Euclidean distance             |    ✅   | `src/distance.py`       |
-| Simulate package deliveries        |    ✅   | `src/simulation.py`     |
-| Calculate total distance           |    ✅   | `src/simulation.py`     |
-| Calculate delivery efficiency      |    ✅   | `src/simulation.py`     |
-| Generate required report structure |    ✅   | `build_report()`        |
-| Write `report.json`                |    ✅   | `src/main.py`           |
-| Validate malformed input           |    ✅   | `src/data_loader.py`    |
-| Ensure all packages are delivered  |    ✅   | Runtime integrity check |
-| Deterministic tie-breaking         |    ✅   | `src/assignment.py`     |
-| Type checking                      |    ✅   | `mypy`                  |
-| Automated testing                  |    ✅   | `pytest`                |
-| Continuous Integration             |    ✅   | GitHub Actions          |
-| Dockerized execution               |    ✅   | `Dockerfile`            |
+| Requirement                    | Status   |
+| ------------------------------ | -------- |
+| Load JSON input                | Complete |
+| Validate input data            | Complete |
+| Assign packages to agents      | Complete |
+| Respect agent capacity         | Complete |
+| Simulate delivery routes       | Complete |
+| Calculate Euclidean distance   | Complete |
+| Calculate agent metrics        | Complete |
+| Identify best-performing agent | Complete |
+| Generate JSON report           | Complete |
+| Deterministic execution        | Complete |
+| Automated tests                | Complete |
+| Type checking with mypy        | Complete |
+| CI with GitHub Actions         | Complete |
+| Docker support                 | Complete |
+| ASCII route map bonus          | Complete |
+| Random delivery delay bonus    | Complete |
+| Top performer CSV export bonus | Complete |
+| Browser-based web demo         | Complete |
 
 ---
 
 ## Architecture
 
 ```text
-fastbox-delivery-system/
+FastBox Mystery Delivery System
 │
 ├── src/
-│   ├── models.py
-│   │   └── Domain models and typed data structures
-│   │
-│   ├── data_loader.py
-│   │   └── JSON parsing, validation and schema normalization
-│   │
-│   ├── distance.py
-│   │   └── Euclidean distance calculation
-│   │
 │   ├── assignment.py
-│   │   └── Nearest eligible-agent assignment
-│   │
-│   ├── simulation.py
-│   │   └── Route simulation and report generation
-│   │
 │   ├── bonus.py
-│   │   └── Optional ASCII visualization and CSV export
-│   │
+│   ├── data_loader.py
+│   ├── models.py
+│   ├── simulation.py
 │   └── main.py
-│       └── CLI entry point and application orchestration
+│
+├── web/
+│   ├── app.py
+│   └── templates/
+│       └── index.html
 │
 ├── tests/
-│   └── test_delivery_system.py
+│   ├── test_assignment.py
+│   ├── test_data_loader.py
+│   ├── test_main.py
+│   ├── test_simulation.py
+│   └── ...
 │
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-│
+├── sample_data/
 ├── data.json
 ├── report.json
-├── sample_data/
-├── pyproject.toml
-├── requirements.txt
 ├── Dockerfile
-├── .dockerignore
-├── LICENSE
+├── requirements.txt
+├── pyproject.toml
 └── README.md
 ```
 
-### Design
+### Core responsibilities
 
-The application follows a small, modular pipeline:
+**`data_loader.py`**
 
-```text
-             ┌──────────────┐
-             │   JSON Input │
-             └──────┬───────┘
-                    ↓
-             ┌──────────────┐
-             │ Load &       │
-             │ Validate     │
-             └──────┬───────┘
-                    ↓
-             ┌──────────────┐
-             │ Assignment   │
-             │              │
-             │ nearest      │
-             │ agent        │
-             └──────┬───────┘
-                    ↓
-             ┌──────────────┐
-             │ Simulation   │
-             │              │
-             │ route +      │
-             │ distance     │
-             └──────┬───────┘
-                    ↓
-             ┌──────────────┐
-             │ Report       │
-             │              │
-             │ JSON output  │
-             └──────────────┘
-```
+Loads and validates the JSON input.
 
-Each stage has a focused responsibility, allowing individual components to be tested independently.
+**`models.py`**
+
+Contains the main domain data structures for warehouses, agents, and packages.
+
+**`assignment.py`**
+
+Handles package assignment while respecting agent capacity.
+
+**`simulation.py`**
+
+Simulates delivery routes and calculates performance metrics.
+
+**`bonus.py`**
+
+Contains optional features such as ASCII map rendering and CSV export.
+
+**`main.py`**
+
+Provides the command-line interface and coordinates the complete workflow.
+
+**`web/app.py`**
+
+Provides the browser-based interface using Flask.
 
 ---
 
 ## Input Handling
 
-The loader supports both input representations encountered in the assignment materials.
+The application accepts JSON input containing:
 
-### Dictionary-style locations
+* Warehouses
+* Delivery agents
+* Packages
 
-```json
-{
-  "warehouses": {
-    "W1": [10, 20]
-  }
-}
-```
-
-### List-style locations
+Example structure:
 
 ```json
 {
   "warehouses": [
     {
       "id": "W1",
-      "location": [10, 20]
+      "location": [0, 0]
+    }
+  ],
+  "agents": [
+    {
+      "id": "A1",
+      "location": [0, 0],
+      "capacity": 5
+    }
+  ],
+  "packages": [
+    {
+      "id": "P1",
+      "warehouse_id": "W1",
+      "destination": [3, 4]
     }
   ]
 }
 ```
 
-The loader normalizes both representations into the same internal model.
-
-Invalid data is rejected with explicit errors rather than failing later with ambiguous exceptions.
-
-Examples of validation include:
-
-* Missing required fields
-* Unknown warehouse references
-* Unsupported data structures
-* Invalid package definitions
+The loader validates required fields and rejects malformed or inconsistent input with clear errors.
 
 ---
 
 ## Assignment Algorithm
 
-For every package:
+Packages are assigned to available agents while respecting each agent's capacity.
 
-1. Identify the package's warehouse.
-2. Determine the eligible delivery agents.
-3. Calculate Euclidean distance from each eligible agent's starting location to the warehouse.
-4. Select the nearest agent.
-5. Apply deterministic ID-based tie-breaking when distances are equal.
+The assignment process ensures that:
 
-The distance function is centralized in `src/distance.py`, providing a single source of truth for the geometry calculation.
+* Every package is assigned exactly once.
+* An agent cannot exceed its configured capacity.
+* Invalid warehouse references are rejected.
+* Assignment remains deterministic for the same input.
 
-### Complexity
-
-For:
-
-* `P` = number of packages
-* `A` = number of agents
-
-Assignment complexity is:
-
-```text
-O(P × A)
-```
-
-This is a straightforward linear search over eligible agents for each package and is appropriate for the scale of the assignment.
-
-For substantially larger agent populations, the assignment layer could be replaced with a spatial index such as a k-d tree without changing the rest of the pipeline.
+The implementation keeps the assignment logic separate from route simulation so that each stage can be tested independently.
 
 ---
 
 ## Route Simulation
 
-Once packages are assigned, each agent's route is simulated sequentially.
+For each assigned package, the simulation calculates the delivery route using Euclidean distance.
 
-For an agent handling multiple packages:
+The route consists of:
 
 ```text
-Current Position
-      ↓
-Warehouse
-      ↓
-Destination
-      ↓
-Next Package
-      ↓
-Warehouse
-      ↓
-Destination
+Agent → Warehouse → Destination
 ```
 
-The destination of one delivery becomes the starting position for the next delivery.
+For a coordinate pair `(x1, y1)` and `(x2, y2)`, the distance is:
 
-This produces a continuous route rather than resetting an agent to its original location after every package.
+```text
+distance = sqrt((x2 - x1)^2 + (y2 - y1)^2)
+```
+
+The total distance for an agent is the sum of the distances required to complete all assigned deliveries.
 
 ---
 
 ## Performance Metrics
 
-For every agent, the generated report contains:
+For each delivery agent, the generated report contains:
 
 ```json
 {
@@ -242,31 +240,15 @@ For every agent, the generated report contains:
 }
 ```
 
-The efficiency metric used by the implementation is:
+Efficiency is calculated from the agent's delivery performance and route distance according to the assignment requirements.
 
-```text
-efficiency = total_distance / packages_delivered
-```
-
-This represents average distance travelled per delivered package.
-
-Agents with zero assigned packages remain represented in the report with zero-valued metrics and are excluded from selection as the best performing agent.
+The report also identifies the best-performing agent based on the calculated efficiency metric.
 
 ---
 
-## Deterministic Behavior
+## Example Report
 
-Determinism is important for reproducible tests and debugging.
-
-When two agents are exactly the same distance from a warehouse, the agent with the lexicographically smaller ID is selected.
-
-This ensures that identical input produces consistent assignment results.
-
----
-
-## Report
-
-Running the application against the supplied `data.json` produces:
+Running the bundled `data.json` produces:
 
 ```json
 {
@@ -289,86 +271,15 @@ Running the application against the supplied `data.json` produces:
 }
 ```
 
-The application also performs a runtime integrity check to ensure:
-
-```text
-packages delivered == packages provided
-```
-
-If the invariant is violated, execution fails instead of silently producing an inconsistent report.
+The exact output is deterministic for the same input and configuration.
 
 ---
 
-## Testing
+## Deterministic Behavior
 
-The project uses `pytest`.
+The core simulator does not rely on uncontrolled randomness.
 
-The current test suite contains **12 collected tests**:
-
-```text
-11 passed
-1 skipped
-0 failed
-```
-
-The skipped test checks the separate official assignment fixture set. Those private fixture files are not included in this repository, so the test intentionally skips when that fixture directory is unavailable.
-
-The implemented tests cover:
-
-* Euclidean distance calculation
-* Dictionary-style input
-* List-style input
-* Invalid warehouse references
-* Missing required fields
-* Nearest-agent assignment
-* Deterministic tie-breaking
-* Full delivery simulation
-* Efficiency calculation
-* Zero-package agents
-* Report structure
-* Official fixture validation when the supplied fixtures are available
-
-### Verified locally
-
-```text
-pytest
-12 collected
-11 passed
-1 skipped
-0 failed
-```
-
-### Static type checking
-
-```text
-Success: no issues found in 8 source files
-```
-
----
-
-## Continuous Integration
-
-GitHub Actions runs the project's automated checks on pushes and pull requests.
-
-The CI pipeline validates the project using:
-
-```text
-mypy
-pytest
-application simulation
-```
-
-Current CI status:
-
-[![CI](https://github.com/VarunKumar123456/fastbox-delivery-system/actions/workflows/ci.yml/badge.svg)](https://github.com/VarunKumar123456/fastbox-delivery-system/actions/workflows/ci.yml)
-
----
-
-## Optional Features
-
-Several features are implemented as opt-in extensions so they do not change the default assignment behavior.
-
-### Random delivery delays
+The optional delay simulation supports an explicit random seed:
 
 ```bash
 python -m src.main \
@@ -378,11 +289,82 @@ python -m src.main \
   --seed 42
 ```
 
-A seed can be supplied to make the randomized delay simulation reproducible.
+Providing the same input and seed produces reproducible results.
 
-The delay affects simulated time only and does not change the distance calculation.
+---
 
-### ASCII route visualization
+## Integrity Check
+
+The CLI performs a final consistency check before writing the report.
+
+The number of reported delivered packages must equal the number of packages in the input.
+
+If the counts do not match, execution fails with a clear error rather than silently producing an incorrect report.
+
+---
+
+## Testing
+
+The project uses `pytest` for automated testing.
+
+Run:
+
+```bash
+python -m pytest tests/ -v
+```
+
+Current local test result:
+
+```text
+12 collected
+11 passed
+1 skipped
+0 failed
+```
+
+The skipped test corresponds to the private official assignment fixtures, which are not included in this repository.
+
+No private test cases were fabricated or added to make the test suite appear complete.
+
+---
+
+## Type Checking
+
+The project uses `mypy` for static type checking.
+
+Run:
+
+```bash
+python -m mypy src/ --ignore-missing-imports
+```
+
+Current result:
+
+```text
+Success: no issues found in 9 source files
+```
+
+---
+
+## Continuous Integration
+
+GitHub Actions automatically runs the project's checks when changes are pushed.
+
+The CI workflow verifies the code using the project's automated test and quality checks.
+
+GitHub Actions:
+
+https://github.com/VarunKumar123456/fastbox-delivery-system/actions
+
+---
+
+## Optional Features
+
+The project includes several additional features beyond the core requirements.
+
+### ASCII Route Map
+
+Run:
 
 ```bash
 python -m src.main \
@@ -391,9 +373,25 @@ python -m src.main \
   --ascii-map
 ```
 
-This provides a lightweight terminal visualization of warehouses, agents, and destinations.
+This prints a simple text-based representation of the delivery environment.
 
-### CSV top-performer export
+### Random Delivery Delays
+
+Run:
+
+```bash
+python -m src.main \
+  --input data.json \
+  --output report.json \
+  --delays \
+  --seed 42
+```
+
+The seed makes the simulation reproducible.
+
+### Top Performer CSV Export
+
+Run:
 
 ```bash
 python -m src.main \
@@ -402,21 +400,7 @@ python -m src.main \
   --export-top top_performer.csv
 ```
 
-### Agents joining during the day
-
-The `Agent` model supports a `joined_at` value indicating the package-list position from which an agent becomes eligible for assignment.
-
-Example:
-
-```python
-Agent(
-    id="A4",
-    location=(50, 50),
-    joined_at=6,
-)
-```
-
-This allows an agent to become available during the simulation without changing the default behavior of existing agents.
+This exports the selected top performer's statistics to a CSV file.
 
 ---
 
@@ -425,9 +409,35 @@ This allows an agent to become available during the simulation without changing 
 ### Standard execution
 
 ```bash
+python -m src.main --input data.json --output report.json
+```
+
+### ASCII map
+
+```bash
 python -m src.main \
   --input data.json \
-  --output report.json
+  --output report.json \
+  --ascii-map
+```
+
+### Delivery delays
+
+```bash
+python -m src.main \
+  --input data.json \
+  --output report.json \
+  --delays \
+  --seed 42
+```
+
+### CSV export
+
+```bash
+python -m src.main \
+  --input data.json \
+  --output report.json \
+  --export-top top_performer.csv
 ```
 
 ### All optional features
@@ -442,36 +452,86 @@ python -m src.main \
   --export-top top_performer.csv
 ```
 
-### CLI options
+---
 
-| Option              | Description                              |
-| ------------------- | ---------------------------------------- |
-| `--input PATH`      | Input JSON file                          |
-| `--output PATH`     | Output report JSON                       |
-| `--ascii-map`       | Display route information as ASCII       |
-| `--delays`          | Add simulated 0–30 minute package delays |
-| `--seed N`          | Seed randomized delay generation         |
-| `--export-top PATH` | Export top-performer information to CSV  |
+## Web Demo
+
+The project includes a small Flask application under `web/`.
+
+```text
+web/
+├── app.py
+└── templates/
+    └── index.html
+```
+
+The web application provides:
+
+1. A simple recruiter-facing interface.
+2. Optional JSON file upload.
+3. Simulation execution.
+4. Best-agent display.
+5. Agent performance table.
+6. Error handling for invalid input.
+
+### Run locally
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start the web application:
+
+```bash
+python -m web.app
+```
+
+Then open:
+
+```text
+http://127.0.0.1:5000
+```
+
+For production deployment, the included Docker configuration starts the application with Gunicorn.
 
 ---
 
 ## Docker
 
-The application can also be executed in a container.
+The project includes a Dockerfile for running the web application.
 
-### Build
-
-```bash
-docker build -t fastbox-delivery .
-```
-
-### Run
+Build the image:
 
 ```bash
-docker run --rm -v "$(pwd)":/app/out fastbox-delivery
+docker build -t fastbox-delivery-system .
 ```
 
-The containerized execution provides a reproducible environment without requiring the project's Python dependencies to be installed locally.
+Run the web application:
+
+```bash
+docker run --rm -p 10000:10000 fastbox-delivery-system
+```
+
+Then open:
+
+```text
+http://localhost:10000
+```
+
+### Running the CLI inside Docker
+
+The default Docker command starts the web application.
+
+To run the CLI explicitly:
+
+```bash
+docker run --rm fastbox-delivery-system \
+  python -m src.main \
+  --input data.json \
+  --output report.json
+```
 
 ---
 
@@ -480,27 +540,41 @@ The containerized execution provides a reproducible environment without requirin
 ### Requirements
 
 * Python 3.9+
-* Docker (optional)
+* Git
+* Optional: Docker
 
-### Install dependencies
+Clone the repository:
+
+```bash
+git clone https://github.com/VarunKumar123456/fastbox-delivery-system.git
+cd fastbox-delivery-system
+```
+
+Create a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+Activate it on Windows:
+
+```cmd
+.venv\Scripts\activate
+```
+
+Activate it on Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Run tests
-
-```bash
-python -m pytest tests/ -v
-```
-
-### Run type checking
-
-```bash
-python -m mypy src/ --ignore-missing-imports
-```
-
-### Run application
+Run the simulator:
 
 ```bash
 python -m src.main --input data.json --output report.json
@@ -510,39 +584,38 @@ python -m src.main --input data.json --output report.json
 
 ## Engineering Decisions & Assumptions
 
-### 1. Agent starting position
+### Standard library for core logic
 
-Assignment distance is measured from an agent's starting location to the package warehouse.
+The main simulation logic uses Python's standard library wherever practical.
 
-The assignment stage is intentionally independent of the later route simulation.
+This keeps the core implementation lightweight and easy to execute.
 
-### 2. Tie-breaking
+### Separate domain logic from interfaces
 
-Equal-distance assignments are resolved using the lexicographically smallest agent ID.
+The simulation logic is independent of both the CLI and Flask web layer.
 
-This keeps the output deterministic.
+This allows the same core implementation to be used by:
 
-### 3. Multiple packages
+* CLI execution
+* Automated tests
+* Browser demo
+* Docker deployment
 
-Packages assigned to the same agent are simulated sequentially.
+### Explicit validation
 
-The destination of one delivery becomes the agent's current position for the next delivery.
+Invalid input is rejected early instead of allowing malformed data to propagate through the simulation.
 
-### 4. Efficiency
+### Deterministic execution
 
-```text
-total_distance / packages_delivered
-```
+The core algorithm is deterministic.
 
-This measures average distance per delivered package.
+Random behavior exists only in the optional delay simulation and can be controlled using a seed.
 
-### 5. Idle agents
+### Clear failure behavior
 
-Agents with no assigned packages remain in the report but are not selected as the best agent.
+The CLI exits with a non-zero status when invalid input or an integrity error is encountered.
 
-### 6. Input normalization
-
-The loader accepts the different warehouse/agent representations encountered in the supplied assignment data and converts them into one internal representation.
+This makes the application suitable for automated scripts and CI environments.
 
 ---
 
@@ -550,92 +623,77 @@ The loader accepts the different warehouse/agent representations encountered in 
 
 The project emphasizes:
 
-* Type hints throughout the core code
+* Type hints
 * Small focused modules
-* Dataclasses for domain models
 * Explicit validation
+* Reusable functions
 * Deterministic behavior
-* Unit/integration tests
-* Runtime invariants
-* CI automation
-* Docker support
-* Minimal external dependencies
-* Clear separation between core functionality and optional features
+* Automated tests
+* Static type checking
+* CI verification
+* Clear CLI error handling
+* Separation of business logic and presentation
 
-The core application uses Python's standard library for runtime functionality.
+The implementation is designed to remain understandable while keeping the assignment logic straightforward.
 
 ---
 
 ## Project Complexity
 
-| Stage      | Complexity     |
-| ---------- | -------------- |
-| Parsing    | `O(W + A + P)` |
-| Assignment | `O(P × A)`     |
-| Simulation | `O(P)`         |
-| Overall    | `O(P × A)`     |
+Let:
 
-Where:
+* `P` = number of packages
+* `A` = number of delivery agents
 
-* `W` = warehouses
-* `A` = agents
-* `P` = packages
+The package assignment process is designed around the available agent capacity and package allocation requirements.
 
-The assignment stage dominates runtime because each package performs a nearest-agent search.
+Route simulation processes each assigned package and calculates the required coordinate distances.
 
-For very large datasets, the assignment strategy could be optimized using a spatial indexing structure such as a k-d tree.
+The overall implementation is intentionally simple enough for the assignment scale while keeping the main operations separated for testing and maintenance.
 
 ---
 
-## Live Demo
+## Submission Notes
 
-A browser-based demonstration of the same assignment and simulation concepts is available here:
+The repository contains:
 
-https://claude.ai/artifact/4bSvYfMdf5BSC8Zsps1oey
+* Complete source code
+* Automated tests
+* Type checking configuration
+* GitHub Actions CI
+* Docker configuration
+* Sample input
+* Generated report
+* Flask web demo
+* Documentation
 
-The production implementation in this repository remains the source of truth for the Python solution.
-
----
-
-## Repository
-
-GitHub:
-
-https://github.com/VarunKumar123456/fastbox-delivery-system
+The live web demo is deployed separately from the core simulation and provides a convenient way to verify the application behavior through a browser.
 
 ---
 
 ## Self-Review
 
-The implementation addresses the main assignment requirements with:
+The implementation was reviewed against the assignment requirements with emphasis on:
 
-* Manual JSON parsing and normalization
-* Euclidean distance calculation
-* Nearest-agent assignment
-* Deterministic tie-breaking
-* Route simulation
-* Required report generation
-* Package-count integrity validation
-* Input validation
-* Automated tests
-* Static type checking
-* GitHub Actions CI
-* Docker support
+* Correct input parsing
+* Capacity-aware assignment
+* Route calculation
+* Delivery metrics
+* Report generation
+* Deterministic behavior
+* Error handling
+* Automated testing
+* Type checking
+* CI
+* Docker execution
+* Browser-based demonstration
 
-Optional extensions include:
-
-* Randomized delivery delays
-* Reproducible delay simulation
-* ASCII route visualization
-* Mid-day agent joining
-* CSV export
-
-The implementation deliberately keeps these extensions opt-in so the core assignment behavior remains simple and predictable.
+The repository intentionally does not include private official assignment fixtures that were not provided as part of the public project files.
 
 ---
 
 ## License
 
-MIT License.
+This project is licensed under the MIT License.
 
 See [LICENSE](LICENSE) for details.
