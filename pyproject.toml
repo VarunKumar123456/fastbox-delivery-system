@@ -1,0 +1,21 @@
+[project]
+name = "fastbox-delivery-system"
+version = "1.0.0"
+description = "FastBox Mystery Delivery System - a Python logistics simulator (Nexgensis Technologies Python Developer assignment)"
+authors = [{ name = "Varun Kumar" }]
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+
+[tool.black]
+line-length = 100
